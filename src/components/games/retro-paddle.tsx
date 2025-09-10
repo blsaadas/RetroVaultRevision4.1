@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
@@ -28,24 +28,8 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         player1Score: 0,
         player2Score: 0,
         keys: {} as { [key: string]: boolean },
-        animationFrameId: 0,
     });
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = true; };
-        const handleKeyUp = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = false; };
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-        
-        const game = gameState.current;
-        game.animationFrameId = requestAnimationFrame(gameLoop);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-            cancelAnimationFrame(game.animationFrameId);
-        };
-    }, [isGameOver]);
+    const animationFrameId = useRef<number>(0);
 
     const ballReset = () => {
         const game = gameState.current;
@@ -55,9 +39,9 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         game.ballSpeedY = 5 * (Math.random() > 0.5 ? 1 : -1);
     };
     
-    const gameLoop = () => {
+    const gameLoop = useCallback(() => {
         if (isGameOver) {
-            cancelAnimationFrame(gameState.current.animationFrameId);
+            cancelAnimationFrame(animationFrameId.current);
             return;
         }
 
@@ -80,7 +64,6 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         } else if (player2YCenter > game.ballY + 35) {
             game.player2Y -= 6;
         }
-
 
         // Ball movement
         game.ballX += game.ballSpeedX;
@@ -143,8 +126,25 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         ctx.fillText(String(game.player1Score), CANVAS_WIDTH/2 - 70, 50);
         ctx.fillText(String(game.player2Score), CANVAS_WIDTH/2 + 50, 50);
 
-        game.animationFrameId = requestAnimationFrame(gameLoop);
-    };
+        animationFrameId.current = requestAnimationFrame(gameLoop);
+    }, [isGameOver, setScore, onGameOver]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = true; };
+        const handleKeyUp = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = false; };
+        
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        
+        animationFrameId.current = requestAnimationFrame(gameLoop);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+            cancelAnimationFrame(animationFrameId.current);
+        };
+    }, [gameLoop]);
+
 
     return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
