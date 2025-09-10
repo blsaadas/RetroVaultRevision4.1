@@ -6,6 +6,7 @@ import TetrisGame from '@/components/games/tetris';
 import BreakoutGame from '@/components/games/breakout';
 import GalaxyPatrolGame from '@/components/games/galaxy-patrol';
 import Game2048 from '@/components/games/2048';
+import MazeMuncherGame from '@/components/games/maze-muncher';
 import type { Game } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -33,6 +34,8 @@ function getGameComponent(slug: string) {
       return GalaxyPatrolGame;
     case '2048':
       return Game2048;
+    case 'maze-muncher':
+        return MazeMuncherGame;
     default:
       return null;
   }
@@ -117,6 +120,14 @@ export default function GamePage({ params }: GamePageProps) {
                         <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">W/A/S/D</span> to slide the tiles.</li>
                         <li>Tiles with the same number merge into one when they touch.</li>
                         <li>Combine tiles to reach the 2048 tile to win!</li>
+                    </ul>
+                )}
+                {game.slug === 'maze-muncher' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">W/A/S/D</span> to move.</li>
+                        <li>Eat all the pellets to clear the level.</li>
+                        <li>Avoid the ghosts!</li>
+                        <li>Eat a power pellet (large dot) to turn ghosts blue and eat them for extra points!</li>
                     </ul>
                 )}
             </div>
