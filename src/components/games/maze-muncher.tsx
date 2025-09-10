@@ -54,10 +54,10 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
     const gameState = useRef({
         player: { x: 14, y: 23, dx: 0, dy: 0, nextDx: 0, nextDy: 0, lives: 3 },
         ghosts: [
-            { x: 13, y: 14, dx: 1, dy: 0, color: 'red' },
-            { x: 14, y: 14, dx: -1, dy: 0, color: 'pink' },
-            { x: 15, y: 14, dx: 1, dy: 0, color: 'cyan' },
-            { x: 12, y: 14, dx: -1, dy: 0, color: 'orange' },
+            { x: 13, y: 14, dx: 1, dy: 0, color: 'red', isInBox: true },
+            { x: 14, y: 14, dx: -1, dy: 0, color: 'pink', isInBox: true },
+            { x: 15, y: 14, dx: 1, dy: 0, color: 'cyan', isInBox: true },
+            { x: 12, y: 14, dx: -1, dy: 0, color: 'orange', isInBox: true },
         ],
         pellets: [] as {x: number, y: number, isPowerPellet: boolean}[],
         score: 0,
@@ -101,8 +101,9 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
     }, [isGameOver]);
 
 
-    const isWall = (x: number, y: number) => {
+    const isWall = (x: number, y: number, isGhost: boolean = false) => {
         const char = map[Math.floor(y)]?.[Math.floor(x)];
+        if (isGhost && char === '-') return false;
         return char === '#' || char === '-';
     };
 
@@ -138,17 +139,19 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         ctx.scale(scale, scale);
 
         // Update player position only every few frames
-        if (game.frameCount % 2 === 0) {
+        if (game.frameCount % 4 === 0) {
             const { player } = game;
             
-            // Check if we can change direction
-            if (!isWall(Math.round(player.x + player.nextDx), Math.round(player.y + player.nextDy))) {
+            const nextGridX = Math.round(player.x + player.nextDx);
+            const nextGridY = Math.round(player.y + player.nextDy);
+            if (!isWall(nextGridX, nextGridY)) {
                 player.dx = player.nextDx;
                 player.dy = player.nextDy;
             }
 
-            // Check for wall in current direction
-            if (!isWall(Math.round(player.x + player.dx), Math.round(player.y + player.dy))) {
+            const currentGridX = Math.round(player.x + player.dx);
+            const currentGridY = Math.round(player.y + player.dy);
+            if (!isWall(currentGridX, currentGridY)) {
                 player.x += player.dx;
                 player.y += player.dy;
             }
@@ -162,11 +165,14 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         // Update ghost positions
         if (game.frameCount % 4 === 0) {
             game.ghosts.forEach(ghost => {
+                if (ghost.isInBox && map[ghost.y][ghost.x] !== '-') {
+                     ghost.isInBox = false;
+                }
                  const possibleMoves = [];
-                 if (!isWall(ghost.x, ghost.y - 1) && ghost.dy !== 1) possibleMoves.push({dx:0, dy:-1});
-                 if (!isWall(ghost.x, ghost.y + 1) && ghost.dy !== -1) possibleMoves.push({dx:0, dy:1});
-                 if (!isWall(ghost.x - 1, ghost.y) && ghost.dx !== 1) possibleMoves.push({dx:-1, dy:0});
-                 if (!isWall(ghost.x + 1, ghost.y) && ghost.dx !== -1) possibleMoves.push({dx:1, dy:0});
+                 if (!isWall(ghost.x, ghost.y - 1, ghost.isInBox) && ghost.dy !== 1) possibleMoves.push({dx:0, dy:-1});
+                 if (!isWall(ghost.x, ghost.y + 1, ghost.isInBox) && ghost.dy !== -1) possibleMoves.push({dx:0, dy:1});
+                 if (!isWall(ghost.x - 1, ghost.y, ghost.isInBox) && ghost.dx !== 1) possibleMoves.push({dx:-1, dy:0});
+                 if (!isWall(ghost.x + 1, ghost.y, ghost.isInBox) && ghost.dx !== -1) possibleMoves.push({dx:1, dy:0});
                 
                  if (possibleMoves.length > 0) {
                     const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
@@ -207,6 +213,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
                 if (game.isFrightened > 0) {
                     ghost.x = 13;
                     ghost.y = 14;
+                    ghost.isInBox = true;
                     game.score += 200;
                     setScore(() => game.score);
                 } else {
