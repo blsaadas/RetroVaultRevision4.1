@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Game } from '@/lib/types';
 import { useGameState } from '@/hooks/use-game-state';
 import { AdaptiveDifficultyTool } from './adaptive-difficulty-tool';
@@ -17,6 +17,11 @@ export function GameContainer({ game, GameComponent }: GameContainerProps) {
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameKey, setGameKey] = useState(Date.now());
   const { highScore, setHighScore, addToPlayHistory } = useGameState(game.slug);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleGameOver = useCallback((finalScore: number) => {
     setScore(finalScore);
@@ -42,7 +47,7 @@ export function GameContainer({ game, GameComponent }: GameContainerProps) {
         </div>
         <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-md">
           <Trophy className="h-5 w-5 text-amber-500" />
-          <span>High Score: {highScore}</span>
+          <span>High Score: {isClient ? highScore : 0}</span>
         </div>
       </div>
 
