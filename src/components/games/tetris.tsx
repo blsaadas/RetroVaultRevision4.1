@@ -231,8 +231,24 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
       resetPlayer();
       setDropTime(1000);
     }
-  }, [player.collided, resetPlayer, setScore, board, currentScore, player.pos.x, player.pos.y, player.tetromino]);
+  }, [player.collided, resetPlayer, setScore, board, currentScore]);
   
+
+  const move = useCallback((e: KeyboardEvent) => {
+    e.preventDefault();
+    if (isGameOver) return;
+    if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
+      movePlayer(-1);
+    } else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
+      movePlayer(1);
+    } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
+      dropPlayer();
+    } else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
+      playerRotate(board);
+    } else if (e.key === ' ') {
+      hardDrop();
+    }
+  }, [board, isGameOver, playerRotate, hardDrop, dropPlayer]);
 
   useEffect(() => {
     if (isGameOver) {
@@ -240,23 +256,7 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
       return;
     }
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (isGameOver) return;
-      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
-        movePlayer(-1);
-      } else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
-        movePlayer(1);
-      } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
-        dropPlayer();
-      } else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
-        playerRotate(board);
-      } else if (e.key === ' ') {
-        hardDrop();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', move);
 
     if (dropTime) {
       gameLoopRef.current = setInterval(() => {
@@ -265,10 +265,10 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
     }
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', move);
       if (gameLoopRef.current) clearInterval(gameLoopRef.current);
     };
-  }, [board, drop, dropTime, isGameOver]);
+  }, [drop, dropTime, isGameOver, move]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -308,5 +308,3 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
 
   return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
-
-    
