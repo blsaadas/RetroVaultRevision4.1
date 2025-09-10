@@ -102,17 +102,37 @@ export default function WordGuessGame({ setScore, onGameOver, isGameOver }: Word
     }
 
 
-    // Draw word
+    // Draw word display
     ctx.fillStyle = 'hsl(var(--foreground))';
     ctx.font = '48px "Space Grotesk"';
     ctx.textAlign = 'center';
-    let displayWord = word.split('').map(letter => (guessedLetters.includes(letter) || isGameOver ? letter : '_')).join(' ');
-    ctx.fillText(displayWord, CANVAS_WIDTH / 2 + 100, 300);
     
-    // Draw guessed letters
+    const wordSpacing = 40;
+    const startX = (CANVAS_WIDTH / 2 + 100) - (word.length - 1) * wordSpacing / 2;
+
+    word.split('').forEach((letter, index) => {
+        const x = startX + index * wordSpacing;
+        const y = 300;
+        // Draw blanks
+        ctx.fillStyle = 'white';
+        ctx.fillRect(x - wordSpacing/4, y + 10, wordSpacing / 2, 4);
+
+        // Draw correct letters
+        if(guessedLetters.includes(letter) || isGameOver) {
+            ctx.fillStyle = 'hsl(var(--foreground))';
+            ctx.fillText(letter.toUpperCase(), x, y);
+        }
+    });
+    
+    // Draw wrong guessed letters
     ctx.font = '24px "Inter"';
     ctx.textAlign = 'center';
-    ctx.fillText(`Guessed: ${guessedLetters.join(', ')}`,  CANVAS_WIDTH / 2 + 100, 350);
+    ctx.fillStyle = 'hsl(var(--muted-foreground))';
+    ctx.fillText('Wrong Guesses:',  CANVAS_WIDTH / 2 + 100, 350);
+
+    ctx.fillStyle = '#ef4444'; // red for wrong guesses
+    const incorrectLetters = guessedLetters.filter(l => !word.includes(l));
+    ctx.fillText(incorrectLetters.join(', '),  CANVAS_WIDTH / 2 + 100, 380);
     
     checkWinOrLose();
 
@@ -125,4 +145,3 @@ export default function WordGuessGame({ setScore, onGameOver, isGameOver }: Word
 
   return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
-
