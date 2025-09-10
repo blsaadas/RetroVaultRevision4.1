@@ -10,6 +10,8 @@ import MazeMuncherGame from '@/components/games/maze-muncher';
 import AsteroidFieldGame from '@/components/games/asteroid-field';
 import RetroPaddleGame from '@/components/games/retro-paddle';
 import FrogHopperGame from '@/components/games/frog-hopper';
+import MinefieldGame from '@/components/games/minefield';
+import WordGuessGame from '@/components/games/word-guess';
 import type { Game } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -45,6 +47,10 @@ function getGameComponent(slug: string) {
         return RetroPaddleGame;
     case 'frog-hopper':
         return FrogHopperGame;
+    case 'minefield':
+        return MinefieldGame;
+    case 'word-guess':
+        return WordGuessGame;
     default:
       return null;
   }
@@ -159,6 +165,22 @@ export default function GamePage({ params }: GamePageProps) {
                         <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">W/A/S/D</span> to move.</li>
                         <li>Get all 5 frogs to their homes at the top.</li>
                         <li>Avoid cars on the road and drowning in the river!</li>
+                    </ul>
+                )}
+                 {game.slug === 'minefield' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li><span className="font-semibold text-foreground">Left-click</span> to reveal a square.</li>
+                        <li><span className="font-semibold text-foreground">Right-click</span> to place a flag on a suspected mine.</li>
+                        <li>The numbers indicate how many mines are adjacent to that square.</li>
+                        <li>Clear all non-mine squares to win!</li>
+                    </ul>
+                )}
+                {game.slug === 'word-guess' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Guess the hidden word by typing letters on your keyboard.</li>
+                        <li>Each incorrect guess will add a part to the hangman drawing.</li>
+                        <li>You have 6 incorrect guesses before you lose.</li>
+                        <li>Guess the word before the hangman is complete to win!</li>
                     </ul>
                 )}
             </div>
