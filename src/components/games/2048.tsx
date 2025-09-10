@@ -33,7 +33,7 @@ const getTileColor = (value: number) => {
 const getTextColor = (value: number) => (value <= 4 ? '#776e65' : '#f9f6f2');
 
 
-export default function Game2048({ setScore, onGameOver, isGameOver }: Game2048Props) {
+export default function Game2048({ setScore, onGameOver, isGameOver: isGameFinished }: Game2048Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [score, updateScore] = useState(0);
@@ -115,6 +115,27 @@ export default function Game2048({ setScore, onGameOver, isGameOver }: Game2048P
   useEffect(() => {
     draw();
   }, [draw]);
+  
+   const checkGameOver = (currentTiles: Tile[]): boolean => {
+    if (currentTiles.length < GRID_SIZE * GRID_SIZE) return false;
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const tile = currentTiles.find(t => t.x === c && t.y === r);
+        if(!tile) continue;
+        // Check right
+        if (c < GRID_SIZE - 1) {
+          const right = currentTiles.find(t => t.x === c + 1 && t.y === r);
+          if (right && right.value === tile.value) return false;
+        }
+        // Check down
+        if (r < GRID_SIZE - 1) {
+          const down = currentTiles.find(t => t.x === c && t.y === r + 1);
+          if (down && down.value === tile.value) return false;
+        }
+      }
+    }
+    return true;
+  };
 
   const move = useCallback((dx: number, dy: number) => {
     let moved = false;
@@ -168,36 +189,15 @@ export default function Game2048({ setScore, onGameOver, isGameOver }: Game2048P
 
         if (finalTiles.some(t => t.value === 2048)) {
             onGameOver(newScore);
-        } else if (isGameOver(finalTiles)) {
+        } else if (checkGameOver(finalTiles)) {
             onGameOver(newScore);
         }
     }
   }, [tiles, score, addRandomTile, onGameOver, setScore]);
-  
-   const isGameOver = (currentTiles: Tile[]): boolean => {
-    if (currentTiles.length < GRID_SIZE * GRID_SIZE) return false;
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
-        const tile = currentTiles.find(t => t.x === c && t.y === r);
-        if(!tile) continue;
-        // Check right
-        if (c < GRID_SIZE - 1) {
-          const right = currentTiles.find(t => t.x === c + 1 && t.y === r);
-          if (right && right.value === tile.value) return false;
-        }
-        // Check down
-        if (r < GRID_SIZE - 1) {
-          const down = currentTiles.find(t => t.x === c && t.y === r + 1);
-          if (down && down.value === tile.value) return false;
-        }
-      }
-    }
-    return true;
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isGameOver) return;
+      if (isGameFinished) return;
       
       switch (e.key) {
         case 'ArrowUp':
@@ -220,7 +220,7 @@ export default function Game2048({ setScore, onGameOver, isGameOver }: Game2048P
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [move, isGameOver]);
+  }, [move, isGameFinished]);
 
   return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
