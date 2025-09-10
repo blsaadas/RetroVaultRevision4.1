@@ -107,7 +107,7 @@ export default function FrogHopperGame({ setScore, onGameOver, isGameOver }: Fro
         ctx.fillRect(0, CANVAS_HEIGHT - (NUM_LANES + 1) * GRID_SIZE, CANVAS_WIDTH, NUM_LANES * GRID_SIZE);
         ctx.fillStyle = '#a1a1aa'; // safe zone
         ctx.fillRect(0, CANVAS_HEIGHT - GRID_SIZE, CANVAS_WIDTH, GRID_SIZE);
-        ctx.fillRect(0, CANVAS_HEIGHT / 2 - GRID_SIZE/2, CANVAS_WIDTH, GRID_SIZE);
+        ctx.fillRect(0, CANVAS_HEIGHT / 2, CANVAS_WIDTH, GRID_SIZE);
 
 
         // Draw homes
