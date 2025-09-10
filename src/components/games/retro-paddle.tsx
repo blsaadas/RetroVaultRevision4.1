@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
@@ -11,7 +12,7 @@ const WINNING_SCORE = 10;
 
 
 interface RetroPaddleGameProps {
-  setScore: (score: (prevScore: number) => number) => void;
+  setScore: (score: number) => void;
   onGameOver: (finalScore: number) => void;
   isGameOver: boolean;
 }
@@ -29,6 +30,7 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         player2Score: 0,
     });
     const keysPressed = useRef<{ [key: string]: boolean }>({});
+    const animationFrameId = useRef<number>();
 
     const ballReset = useCallback(() => {
         const game = gameState.current;
@@ -37,16 +39,10 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         game.ballSpeedX = -game.ballSpeedX;
         game.ballSpeedY = 5 * (Math.random() > 0.5 ? 1 : -1);
     }, []);
-    
-    const gameLoop = useCallback(() => {
-        if (isGameOver) {
-            return;
-        }
 
+    const update = useCallback(() => {
         const game = gameState.current;
-        const ctx = canvasRef.current?.getContext('2d');
-        if (!ctx) return;
-
+        
         // Player 1 movement
         if ((keysPressed.current['w'] || keysPressed.current['arrowup']) && game.player1Y > 0) {
             game.player1Y -= 8;
@@ -105,6 +101,12 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         if (!isGameOver && (game.player1Score >= WINNING_SCORE || game.player2Score >= WINNING_SCORE)) {
             onGameOver(game.player1Score);
         }
+    }, [isGameOver, setScore, onGameOver, ballReset]);
+    
+    const draw = useCallback(() => {
+        const ctx = canvasRef.current?.getContext('2d');
+        if (!ctx) return;
+        const game = gameState.current;
 
         // --- DRAWING LOGIC ---
         ctx.fillStyle = '#18181b';
@@ -133,8 +135,19 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         ctx.fillText(String(game.player1Score), CANVAS_WIDTH/2 - 70, 50);
         ctx.fillText(String(game.player2Score), CANVAS_WIDTH/2 + 50, 50);
 
-        requestAnimationFrame(gameLoop);
-    }, [isGameOver, setScore, onGameOver, ballReset]);
+    }, []);
+
+    const gameLoop = useCallback(() => {
+        if (isGameOver) {
+            if (animationFrameId.current) {
+                cancelAnimationFrame(animationFrameId.current);
+            }
+            return;
+        }
+        update();
+        draw();
+        animationFrameId.current = requestAnimationFrame(gameLoop);
+    }, [isGameOver, update, draw]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => { keysPressed.current[e.key.toLowerCase()] = true; };
@@ -143,12 +156,14 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         
-        const frameId = requestAnimationFrame(gameLoop);
+        animationFrameId.current = requestAnimationFrame(gameLoop);
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            cancelAnimationFrame(frameId);
+            if(animationFrameId.current) {
+                cancelAnimationFrame(animationFrameId.current);
+            }
         };
     }, [gameLoop]);
 
