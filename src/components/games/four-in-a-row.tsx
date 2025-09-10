@@ -21,13 +21,13 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
     const [currentPlayer, setCurrentPlayer] = useState(1);
     const [winner, setWinner] = useState<number | null>(null);
     const [hoverCol, setHoverCol] = useState<number | null>(null);
+    const isPlayerTurn = useRef(true);
 
-    const dropPiece = (col: number, player: number) => {
+    const dropPiece = (col: number, player: number, currentBoard: number[][]): number[][] | null => {
         for (let row = ROWS - 1; row >= 0; row--) {
-            if (board[row][col] === 0) {
-                const newBoard = JSON.parse(JSON.stringify(board));
+            if (currentBoard[row][col] === 0) {
+                const newBoard = JSON.parse(JSON.stringify(currentBoard));
                 newBoard[row][col] = player;
-                setBoard(newBoard);
                 return newBoard;
             }
         }
@@ -76,6 +76,7 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
     }
 
     const aiMove = useCallback((currentBoard: number[][]) => {
+        isPlayerTurn.current = false;
         const availableCols: number[] = [];
         for (let c = 0; c < COLS; c++) {
             if (currentBoard[0][c] === 0) {
@@ -85,20 +86,23 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         if(availableCols.length === 0) return;
 
         const col = availableCols[Math.floor(Math.random() * availableCols.length)];
-        const newBoard = dropPiece(col, 2);
+        const newBoard = dropPiece(col, 2, currentBoard);
+
         if(newBoard){
+            setBoard(newBoard);
             const gameWinner = checkWin(newBoard);
              if (gameWinner) {
                 setWinner(gameWinner);
                 onGameOver(gameWinner === 1 ? 1 : 0);
             } else {
+                isPlayerTurn.current = true;
                 setCurrentPlayer(1);
             }
         }
-    }, [board, onGameOver]);
+    }, [onGameOver]);
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (isGameOver || winner || currentPlayer !== 1) return;
+        if (isGameOver || winner || !isPlayerTurn.current) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
         
@@ -114,11 +118,12 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
     };
 
     const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (isGameOver || winner || currentPlayer !== 1) return;
+        if (isGameOver || winner || !isPlayerTurn.current) return;
         
         if (hoverCol !== null) {
-            const newBoard = dropPiece(hoverCol, 1);
+            const newBoard = dropPiece(hoverCol, 1, board);
             if (newBoard) {
+                setBoard(newBoard);
                 setHoverCol(null); // Stop showing hover after piece is dropped
                 const gameWinner = checkWin(newBoard);
                 if (gameWinner) {
@@ -127,6 +132,7 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
                     setScore(() => score);
                     onGameOver(score);
                 } else {
+                    isPlayerTurn.current = false;
                     setCurrentPlayer(2);
                     setTimeout(() => aiMove(newBoard), 500);
                 }
@@ -141,13 +147,13 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         // Draw hover indicator
-        if (hoverCol !== null && currentPlayer === 1 && !winner) {
+        if (hoverCol !== null && isPlayerTurn.current && !winner) {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.fillRect(hoverCol * CELL_SIZE, CELL_SIZE, CELL_SIZE, CANVAS_HEIGHT - CELL_SIZE);
         }
         
         // Draw hover piece
-        if (hoverCol !== null && currentPlayer === 1 && !winner) {
+        if (hoverCol !== null && isPlayerTurn.current && !winner) {
             ctx.fillStyle = '#facc15';
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
@@ -179,7 +185,7 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
                 }
             }
         }
-    }, [board, hoverCol, currentPlayer, winner]);
+    }, [board, hoverCol, winner]);
     
     useEffect(() => {
         draw();
