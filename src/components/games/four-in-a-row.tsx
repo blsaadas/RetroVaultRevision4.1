@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -19,6 +20,7 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
     const [board, setBoard] = useState<number[][]>(() => Array(ROWS).fill(0).map(() => Array(COLS).fill(0)));
     const [currentPlayer, setCurrentPlayer] = useState(1);
     const [winner, setWinner] = useState<number | null>(null);
+    const [hoverCol, setHoverCol] = useState<number | null>(null);
 
     const dropPiece = (col: number, player: number) => {
         for (let row = ROWS - 1; row >= 0; row--) {
@@ -95,27 +97,39 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         }
     }, [board, onGameOver]);
 
-    const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (isGameOver || winner || currentPlayer !== 1) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
-
+        
         const rect = canvas.getBoundingClientRect();
         const scale = canvas.width / rect.width;
         const x = (event.clientX - rect.left) * scale;
         const col = Math.floor(x / CELL_SIZE);
+        setHoverCol(col >= 0 && col < COLS ? col : null);
+    };
+
+    const handleMouseLeave = () => {
+        setHoverCol(null);
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (isGameOver || winner || currentPlayer !== 1) return;
         
-        const newBoard = dropPiece(col, 1);
-        if (newBoard) {
-            const gameWinner = checkWin(newBoard);
-            if (gameWinner) {
-                setWinner(gameWinner);
-                const score = gameWinner === 1 ? 1 : 0;
-                setScore(() => score);
-                onGameOver(score);
-            } else {
-                setCurrentPlayer(2);
-                setTimeout(() => aiMove(newBoard), 500);
+        if (hoverCol !== null) {
+            const newBoard = dropPiece(hoverCol, 1);
+            if (newBoard) {
+                setHoverCol(null); // Stop showing hover after piece is dropped
+                const gameWinner = checkWin(newBoard);
+                if (gameWinner) {
+                    setWinner(gameWinner);
+                    const score = gameWinner === 1 ? 1 : 0;
+                    setScore(() => score);
+                    onGameOver(score);
+                } else {
+                    setCurrentPlayer(2);
+                    setTimeout(() => aiMove(newBoard), 500);
+                }
             }
         }
     };
@@ -125,6 +139,22 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         if (!ctx) return;
 
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Draw hover indicator
+        if (hoverCol !== null && currentPlayer === 1 && !winner) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(hoverCol * CELL_SIZE, CELL_SIZE, CELL_SIZE, CANVAS_HEIGHT - CELL_SIZE);
+        }
+        
+        // Draw hover piece
+        if (hoverCol !== null && currentPlayer === 1 && !winner) {
+            ctx.fillStyle = '#facc15';
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(hoverCol * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE / 2 - 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
 
         // Draw board
         for (let r = 0; r < ROWS; r++) {
@@ -149,7 +179,7 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
                 }
             }
         }
-    }, [board]);
+    }, [board, hoverCol, currentPlayer, winner]);
     
     useEffect(() => {
         draw();
@@ -161,6 +191,8 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
             onClick={handleClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
             className="w-full h-full object-contain cursor-pointer"
         />
     );
