@@ -81,7 +81,9 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
     useEffect(() => {
         setupGame();
+    }, [setupGame]);
 
+    useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const game = gameState.current;
             switch(e.key) {
@@ -93,7 +95,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [setupGame]);
+    }, []);
 
 
     const isWall = (x: number, y: number) => {
