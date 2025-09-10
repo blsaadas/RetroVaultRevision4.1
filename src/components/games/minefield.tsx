@@ -115,7 +115,7 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
   
   const startTimeRef = useRef<number | null>(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (isGameOver) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -127,7 +127,7 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
     if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) return;
     
     let currentBoard = board;
-    if (firstClick) {
+    if (firstClick && event.button === 0) {
       startTimeRef.current = Date.now();
       currentBoard = placeMines(x, y);
       setFirstClick(false);
@@ -139,7 +139,6 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
       setBoard(newBoard);
       checkWin(newBoard);
     } else if(event.button === 2) { // Right click
-        event.preventDefault();
         const newBoard = JSON.parse(JSON.stringify(currentBoard));
         if(!newBoard[y][x].isOpen){
             newBoard[y][x].isFlagged = !newBoard[y][x].isFlagged;
@@ -147,6 +146,10 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
         }
     }
   };
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+  }
 
   const draw = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
@@ -208,15 +211,15 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
         });
         setBoard(newBoard);
       }
-  }, [isGameOver]);
+  }, [isGameOver, board]);
 
   return (
     <canvas
       ref={canvasRef}
       width={BOARD_SIZE * CELL_SIZE}
       height={BOARD_SIZE * CELL_SIZE}
-      onClick={handleClick}
-      onContextMenu={handleClick}
+      onMouseUp={handleMouseUp}
+      onContextMenu={handleContextMenu}
       className="w-full h-full object-contain cursor-pointer"
     />
   );
