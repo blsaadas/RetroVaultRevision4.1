@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Game } from '@/lib/types';
 import { useGameState } from '@/hooks/use-game-state';
 import { AdaptiveDifficultyTool } from './adaptive-difficulty-tool';
-import { Award, RotateCw, Trophy } from 'lucide-react';
+import { Award, RotateCw, Trophy, Expand, Shrink } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface GameContainerProps {
@@ -18,9 +18,21 @@ export function GameContainer({ game, GameComponent }: GameContainerProps) {
   const [gameKey, setGameKey] = useState(Date.now());
   const { highScore, setHighScore, addToPlayHistory } = useGameState(game.slug);
   const [isClient, setIsClient] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsClient(true);
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   const handleGameOver = useCallback((finalScore: number) => {
@@ -38,8 +50,20 @@ export function GameContainer({ game, GameComponent }: GameContainerProps) {
     setGameKey(Date.now());
   };
 
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
-    <div className="relative aspect-video bg-neutral-900 rounded-lg shadow-2xl overflow-hidden border-4 border-card">
+    <div ref={containerRef} className="relative aspect-video bg-neutral-900 rounded-lg shadow-2xl overflow-hidden border-4 border-card">
       <div className="absolute top-2 left-4 z-10 flex items-center gap-4 text-white font-bold text-shadow">
         <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-md">
           <Award className="h-5 w-5 text-yellow-400" />
@@ -49,6 +73,13 @@ export function GameContainer({ game, GameComponent }: GameContainerProps) {
           <Trophy className="h-5 w-5 text-amber-500" />
           <span>High Score: {isClient ? highScore : 0}</span>
         </div>
+      </div>
+
+       <div className="absolute top-2 right-2 z-10">
+        <Button onClick={toggleFullscreen} variant="ghost" size="icon" className="text-white hover:bg-black/50 hover:text-white">
+          {isFullscreen ? <Shrink className="h-5 w-5" /> : <Expand className="h-5 w-5" />}
+          <span className="sr-only">Toggle Fullscreen</span>
+        </Button>
       </div>
 
       <GameComponent
