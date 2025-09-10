@@ -21,7 +21,7 @@ const map = [
     "     #.##          ##.#     ",
     "     #.## ######## ##.#     ",
     "######.## #      # ##.######",
-    "        #      #          ",
+    "          #      #          ",
     "######.## #      # ##.######",
     "     #.## ######## ##.#     ",
     "     #.##          ##.#     ",
@@ -108,7 +108,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
     const isGhostWall = (x: number, y: number) => {
         const char = map[Math.floor(y)]?.[Math.floor(x)];
-        return char === '#' || char === '-';
+        return char === '#';
     }
 
 
@@ -144,23 +144,40 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         ctx.scale(scale, scale);
 
         // Update player position only every few frames
-        if (game.frameCount % 8 === 0) {
+        if (game.frameCount % 12 === 0) {
             const { player } = game;
             
-            // Try to apply next direction
-            const nextGridX = player.x + player.nextDx;
-            const nextGridY = player.y + player.nextDy;
-            if (!isWall(nextGridX, nextGridY)) {
-                player.dx = player.nextDx;
-                player.dy = player.nextDy;
+            const currentGridX = Math.round(player.x);
+            const currentGridY = Math.round(player.y);
+
+            const isAtIntersection = Math.abs(player.x - currentGridX) < 0.1 && Math.abs(player.y - currentGridY) < 0.1;
+
+            if (isAtIntersection) {
+                // Try to apply next direction
+                const nextGridX = currentGridX + player.nextDx;
+                const nextGridY = currentGridY + player.nextDy;
+                if (!isWall(nextGridX, nextGridY)) {
+                    player.dx = player.nextDx;
+                    player.dy = player.nextDy;
+                }
             }
 
             // Move in current direction
-            const currentGridX = player.x + player.dx;
-            const currentGridY = player.y + player.dy;
-            if (!isWall(currentGridX, currentGridY)) {
-                player.x = currentGridX;
-                player.y = currentGridY;
+            const nextPlayerX = player.x + player.dx * 0.25;
+            const nextPlayerY = player.y + player.dy * 0.25;
+            const nextPlayerGridX = Math.round(nextPlayerX) + player.dx;
+            const nextPlayerGridY = Math.round(nextPlayerY) + player.dy;
+
+            if (!isWall(player.x + player.dx, player.y + player.dy)) {
+                 player.x += player.dx;
+                 player.y += player.dy;
+            } else {
+                 const roundedX = Math.round(player.x);
+                 const roundedY = Math.round(player.y);
+                 if(!isWall(roundedX + player.dx, roundedY+player.dy)){
+                     player.x = roundedX;
+                     player.y = roundedY;
+                 }
             }
         
             // Handle wrapping
@@ -170,7 +187,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
 
         // Update ghost positions
-        if (game.frameCount % 8 === 0) {
+        if (game.frameCount % 14 === 0) {
             game.ghosts.forEach(ghost => {
                  if (ghost.isInBox && ghost.y > 12) {
                      ghost.dy = -1; // Move up to exit box
@@ -234,7 +251,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
             const dx = game.player.x - ghost.x;
             const dy = game.player.y - ghost.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < 1) {
+            if (distance < 0.75) {
                 if (game.isFrightened > 0) {
                     ghost.x = 13.5;
                     ghost.y = 14;
