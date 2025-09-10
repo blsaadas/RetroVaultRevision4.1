@@ -19,9 +19,9 @@ const map = [
     "######.##### ## #####.######",
     "     #.##### ## #####.#     ",
     "     #.##          ##.#     ",
-    "     #.## #      # ##.#     ",
+    "     #.## ######## ##.#     ",
     "######.## #      # ##.######",
-    "      .   #      #   .      ",
+    "        #      #          ",
     "######.## #      # ##.######",
     "     #.## ######## ##.#     ",
     "     #.##          ##.#     ",
@@ -54,10 +54,10 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
     const gameState = useRef({
         player: { x: 14, y: 23, dx: 0, dy: 0, nextDx: 0, nextDy: 0, lives: 3 },
         ghosts: [
-            { x: 13, y: 14, dx: 1, dy: 0, color: 'red', isInBox: true },
-            { x: 14, y: 14, dx: -1, dy: 0, color: 'pink', isInBox: true },
-            { x: 15, y: 14, dx: 1, dy: 0, color: 'cyan', isInBox: true },
-            { x: 12, y: 14, dx: -1, dy: 0, color: 'orange', isInBox: true },
+            { x: 13.5, y: 14, dx: 1, dy: 0, color: 'red', isInBox: true },
+            { x: 14.5, y: 14, dx: -1, dy: 0, color: 'pink', isInBox: true },
+            { x: 15.5, y: 14, dx: 1, dy: 0, color: 'cyan', isInBox: true },
+            { x: 12.5, y: 14, dx: -1, dy: 0, color: 'orange', isInBox: true },
         ],
         pellets: [] as {x: number, y: number, isPowerPellet: boolean}[],
         score: 0,
@@ -101,11 +101,16 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
     }, [isGameOver]);
 
 
-    const isWall = (x: number, y: number, isGhost: boolean = false) => {
+    const isWall = (x: number, y: number) => {
         const char = map[Math.floor(y)]?.[Math.floor(x)];
-        if (isGhost && map[Math.floor(y)]?.[Math.floor(x)] === ' ') return false; // Ghosts can leave the box
-        return char === '#' || char === '-';
+        return char === '#';
     };
+
+    const isGhostWall = (x: number, y: number) => {
+        const char = map[Math.floor(y)]?.[Math.floor(x)];
+        return char === '#' || char === '-';
+    }
+
 
     const gameLoop = useCallback(() => {
         if (isGameOver) {
@@ -139,42 +144,47 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         ctx.scale(scale, scale);
 
         // Update player position only every few frames
-        if (game.frameCount % 5 === 0) {
+        if (game.frameCount % 8 === 0) {
             const { player } = game;
             
-            const nextGridX = Math.round(player.x + player.nextDx);
-            const nextGridY = Math.round(player.y + player.nextDy);
+            // Try to apply next direction
+            const nextGridX = player.x + player.nextDx;
+            const nextGridY = player.y + player.nextDy;
             if (!isWall(nextGridX, nextGridY)) {
                 player.dx = player.nextDx;
                 player.dy = player.nextDy;
             }
 
-            const currentGridX = Math.round(player.x + player.dx);
-            const currentGridY = Math.round(player.y + player.dy);
+            // Move in current direction
+            const currentGridX = player.x + player.dx;
+            const currentGridY = player.y + player.dy;
             if (!isWall(currentGridX, currentGridY)) {
-                player.x += player.dx;
-                player.y += player.dy;
+                player.x = currentGridX;
+                player.y = currentGridY;
             }
         
             // Handle wrapping
-            if (player.x < 0) player.x = map[0].length - 1;
-            if (player.x >= map[0].length) player.x = 0;
+            if (player.x < -1) player.x = map[0].length;
+            if (player.x > map[0].length) player.x = -1;
         }
 
 
         // Update ghost positions
-        if (game.frameCount % 5 === 0) {
+        if (game.frameCount % 8 === 0) {
             game.ghosts.forEach(ghost => {
                  if (ghost.isInBox && ghost.y > 12) {
                      ghost.dy = -1; // Move up to exit box
                      ghost.dx = 0;
-                 } else {
-                    ghost.isInBox = false;
+                 } else if (ghost.isInBox && ghost.y <= 12) {
+                     ghost.isInBox = false;
+                 }
+
+                 if (!ghost.isInBox) {
                     const possibleMoves = [];
-                    if (!isWall(ghost.x, ghost.y - 1, true) && ghost.dy !== 1) possibleMoves.push({dx:0, dy:-1});
-                    if (!isWall(ghost.x, ghost.y + 1, true) && ghost.dy !== -1) possibleMoves.push({dx:0, dy:1});
-                    if (!isWall(ghost.x - 1, ghost.y, true) && ghost.dx !== 1) possibleMoves.push({dx:-1, dy:0});
-                    if (!isWall(ghost.x + 1, ghost.y, true) && ghost.dx !== -1) possibleMoves.push({dx:1, dy:0});
+                    if (!isGhostWall(ghost.x, ghost.y - 1) && ghost.dy !== 1) possibleMoves.push({dx:0, dy:-1});
+                    if (!isGhostWall(ghost.x, ghost.y + 1) && ghost.dy !== -1) possibleMoves.push({dx:0, dy:1});
+                    if (!isGhostWall(ghost.x - 1, ghost.y) && ghost.dx !== 1) possibleMoves.push({dx:-1, dy:0});
+                    if (!isGhostWall(ghost.x + 1, ghost.y) && ghost.dx !== -1) possibleMoves.push({dx:1, dy:0});
                     
                     if (possibleMoves.length > 1) { // Don't turn back if not at intersection
                         const backMoveIndex = possibleMoves.findIndex(m => m.dx === -ghost.dx && m.dy === -ghost.dy);
@@ -191,8 +201,8 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
                 ghost.y += ghost.dy;
 
                 // Handle wrapping for ghosts
-                if (ghost.x < 0) ghost.x = map[0].length - 1;
-                if (ghost.x >= map[0].length) ghost.x = 0;
+                if (ghost.x < -1) ghost.x = map[0].length;
+                if (ghost.x > map[0].length) ghost.x = -1;
             });
         }
 
@@ -221,9 +231,12 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
         // Ghost collision
         game.ghosts.forEach(ghost => {
-            if (Math.round(game.player.x) === Math.round(ghost.x) && Math.round(game.player.y) === Math.round(ghost.y)) {
+            const dx = game.player.x - ghost.x;
+            const dy = game.player.y - ghost.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 1) {
                 if (game.isFrightened > 0) {
-                    ghost.x = 13;
+                    ghost.x = 13.5;
                     ghost.y = 14;
                     ghost.isInBox = true;
                     game.score += 200;
@@ -273,9 +286,9 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         game.ghosts.forEach(g => {
             ctx.fillStyle = game.isFrightened > 0 ? (game.isFrightened < 100 && game.isFrightened % 20 > 10 ? 'white' : 'blue') : g.color;
             ctx.beginPath();
-            ctx.arc(g.x * GRID_SIZE + GRID_SIZE / 2, g.y * GRID_SIZE + GRID_SIZE / 2, GRID_SIZE/2, Math.PI, 0);
-            ctx.lineTo(g.x * GRID_SIZE + GRID_SIZE, g.y * GRID_SIZE + GRID_SIZE);
-            ctx.lineTo(g.x * GRID_SIZE, g.y * GRID_SIZE + GRID_SIZE);
+            ctx.arc(g.x * GRID_SIZE + GRID_SIZE / 2, g.y * GRID_SIZE + GRID_SIZE / 2, GRID_SIZE/2 - 1, Math.PI, 0);
+            ctx.lineTo(g.x * GRID_SIZE + GRID_SIZE - 1, g.y * GRID_SIZE + GRID_SIZE);
+            ctx.lineTo(g.x * GRID_SIZE + 1, g.y * GRID_SIZE + GRID_SIZE);
             ctx.fill();
         });
 
@@ -307,3 +320,5 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
     return <canvas ref={canvasRef} />;
 }
+
+    
