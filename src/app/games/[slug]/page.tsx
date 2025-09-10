@@ -15,7 +15,6 @@ import type { Game } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import FourInARowGame from '@/components/games/four-in-a-row';
-import StarshipDuelGame from '@/components/games/starship-duel';
 
 interface GamePageProps {
   params: {
@@ -52,8 +51,6 @@ function getGameComponent(slug: string) {
         return WordGuessGame;
     case 'four-in-a-row':
         return FourInARowGame;
-    case 'starship-duel':
-        return StarshipDuelGame;
     default:
       return null;
   }
@@ -185,14 +182,6 @@ export default function GamePage({ params }: GamePageProps) {
                         <li>Your goal is to get four of your pieces in a row.</li>
                         <li>Rows can be horizontal, vertical, or diagonal.</li>
                         <li>The first to get four in a row wins!</li>
-                    </ul>
-                )}
-                {game.slug === 'starship-duel' && (
-                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                        <li><span className="font-semibold text-foreground">Left/Right Arrows</span> or <span className="font-semibold text-foreground">A/D</span> to move.</li>
-                        <li>Press <span className="font-semibold text-foreground">Spacebar</span> to shoot.</li>
-                        <li>Survive the waves of attacking alien ships!</li>
-                        <li>Some ships will dive bomb towards you!</li>
                     </ul>
                 )}
             </div>

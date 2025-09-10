@@ -65,12 +65,6 @@
       "description": "A two-player connection board game.",
       "imageUrl": "https://picsum.photos/seed/connectfour/600/400",
       "imageHint": "board game"
-    },
-    {
-      "id": "galaga",
-      "description": "A Japanese shoot-'em-up arcade game.",
-      "imageUrl": "https://picsum.photos/seed/galaga/600/400",
-      "imageHint": "space battle"
     }
   ]
 }

@@ -88,14 +88,6 @@ export const games: Game[] = [
     category: "Puzzle",
     image: "https://picsum.photos/seed/connectfour/600/400",
     imageHint: "board game"
-  },
-  {
-    slug: "starship-duel",
-    title: "Starship Duel",
-    description: "Battle against swarms of alien ships in this intense, fast-paced space shooter.",
-    category: "Arcade",
-    image: "https://picsum.photos/seed/galaga/600/400",
-    imageHint: "space battle"
   }
 ];
 
