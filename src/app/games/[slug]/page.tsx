@@ -4,6 +4,8 @@ import { GameContainer } from '@/components/game-container';
 import SnakeGame from '@/components/games/snake';
 import TetrisGame from '@/components/games/tetris';
 import BreakoutGame from '@/components/games/breakout';
+import GalaxyPatrolGame from '@/components/games/galaxy-patrol';
+import Game2048 from '@/components/games/2048';
 import type { Game } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -27,6 +29,10 @@ function getGameComponent(slug: string) {
       return TetrisGame;
     case 'brick-buster':
       return BreakoutGame;
+    case 'galaxy-patrol':
+      return GalaxyPatrolGame;
+    case '2048':
+      return Game2048;
     default:
       return null;
   }
@@ -43,7 +49,12 @@ export default function GamePage({ params }: GamePageProps) {
   const GameComponent = getGameComponent(slug);
 
   if (!GameComponent) {
-    notFound();
+    return (
+        <div className="container mx-auto px-4 py-8 text-center">
+            <h1 className="font-headline text-4xl font-bold mb-4">Coming Soon!</h1>
+            <p className="text-muted-foreground text-lg">This game is under construction. Please check back later!</p>
+        </div>
+    );
   }
 
   return (
@@ -91,6 +102,21 @@ export default function GamePage({ params }: GamePageProps) {
                         <li>Use <span className="font-semibold text-foreground">Arrow Keys</span>, <span className="font-semibold text-foreground">A/D</span>, or <span className="font-semibold text-foreground">Mouse</span> to move the paddle.</li>
                         <li>Break all the bricks with the ball to win.</li>
                         <li>Don't let the ball fall below your paddle.</li>
+                    </ul>
+                )}
+                {game.slug === 'galaxy-patrol' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">A/D</span> to move your ship.</li>
+                        <li>Press <span className="font-semibold text-foreground">Spacebar</span> to shoot.</li>
+                        <li>Defeat all aliens to win the level.</li>
+                        <li>Avoid getting hit by alien bullets.</li>
+                    </ul>
+                )}
+                {game.slug === '2048' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">W/A/S/D</span> to slide the tiles.</li>
+                        <li>Tiles with the same number merge into one when they touch.</li>
+                        <li>Combine tiles to reach the 2048 tile to win!</li>
                     </ul>
                 )}
             </div>
