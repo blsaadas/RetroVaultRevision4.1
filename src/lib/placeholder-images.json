@@ -17,6 +17,66 @@
       "description": "A classic paddle and ball game.",
       "imageUrl": "https://picsum.photos/seed/breakout/600/400",
       "imageHint": "arcade game"
+    },
+    {
+      "id": "invaders",
+      "description": "A classic space shooter game.",
+      "imageUrl": "https://picsum.photos/seed/invaders/600/400",
+      "imageHint": "space invaders"
+    },
+    {
+      "id": "pacman",
+      "description": "A classic maze arcade game.",
+      "imageUrl": "https://picsum.photos/seed/pacman/600/400",
+      "imageHint": "maze game"
+    },
+    {
+      "id": "asteroids",
+      "description": "A classic space-themed multidirectional shooter arcade game.",
+      "imageUrl": "https://picsum.photos/seed/asteroids/600/400",
+      "imageHint": "spaceship asteroids"
+    },
+    {
+      "id": "pong",
+      "description": "A classic table tennis-style arcade game.",
+      "imageUrl": "https://picsum.photos/seed/pong/600/400",
+      "imageHint": "ping pong"
+    },
+    {
+      "id": "frogger",
+      "description": "A classic arcade game where you help a frog cross the road.",
+      "imageUrl": "https://picsum.photos/seed/frogger/600/400",
+      "imageHint": "frog hopping"
+    },
+    {
+      "id": "2048",
+      "description": "A single-player sliding tile puzzle video game.",
+      "imageUrl": "https://picsum.photos/seed/2048/600/400",
+      "imageHint": "number puzzle"
+    },
+    {
+      "id": "minesweeper",
+      "description": "A single-player puzzle video game.",
+      "imageUrl": "https://picsum.photos/seed/minesweeper/600/400",
+      "imageHint": "bomb grid"
+    },
+    {
+      "id": "hangman",
+      "description": "A classic word guessing game.",
+      "imageUrl": "https://picsum.photos/seed/hangman/600/400",
+      "imageHint": "word puzzle"
+    },
+    {
+      "id": "connectfour",
+      "description": "A two-player connection board game.",
+      "imageUrl": "https://picsum.photos/seed/connectfour/600/400",
+      "imageHint": "board game"
+    },
+    {
+      "id": "galaga",
+      "description": "A Japanese shoot-'em-up arcade game.",
+      "imageUrl": "https://picsum.photos/seed/galaga/600/400",
+      "imageHint": "space battle"
     }
   ]
 }
