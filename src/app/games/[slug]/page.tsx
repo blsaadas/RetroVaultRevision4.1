@@ -7,6 +7,9 @@ import BreakoutGame from '@/components/games/breakout';
 import GalaxyPatrolGame from '@/components/games/galaxy-patrol';
 import Game2048 from '@/components/games/2048';
 import MazeMuncherGame from '@/components/games/maze-muncher';
+import AsteroidFieldGame from '@/components/games/asteroid-field';
+import RetroPaddleGame from '@/components/games/retro-paddle';
+import FrogHopperGame from '@/components/games/frog-hopper';
 import type { Game } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -36,6 +39,12 @@ function getGameComponent(slug: string) {
       return Game2048;
     case 'maze-muncher':
         return MazeMuncherGame;
+    case 'asteroid-field':
+        return AsteroidFieldGame;
+    case 'retro-paddle':
+        return RetroPaddleGame;
+    case 'frog-hopper':
+        return FrogHopperGame;
     default:
       return null;
   }
@@ -128,6 +137,28 @@ export default function GamePage({ params }: GamePageProps) {
                         <li>Eat all the pellets to clear the level.</li>
                         <li>Avoid the ghosts!</li>
                         <li>Eat a power pellet (large dot) to turn ghosts blue and eat them for extra points!</li>
+                    </ul>
+                )}
+                {game.slug === 'asteroid-field' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li><span className="font-semibold text-foreground">Left/Right Arrows</span> or <span className="font-semibold text-foreground">A/D</span> to rotate.</li>
+                        <li><span className="font-semibold text-foreground">Up Arrow</span> or <span className="font-semibold text-foreground">W</span> to thrust forward.</li>
+                        <li>Press <span className="font-semibold text-foreground">Spacebar</span> to shoot.</li>
+                        <li>Shoot all asteroids to win. Avoid crashing into them!</li>
+                    </ul>
+                )}
+                {game.slug === 'retro-paddle' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li><span className="font-semibold text-foreground">Up/Down Arrows</span> or <span className="font-semibold text-foreground">W/S</span> to move your paddle.</li>
+                        <li>First player to 10 points wins.</li>
+                        <li>Don't let the ball get past your paddle!</li>
+                    </ul>
+                )}
+                {game.slug === 'frog-hopper' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">W/A/S/D</span> to move.</li>
+                        <li>Get all 5 frogs to their homes at the top.</li>
+                        <li>Avoid cars on the road and drowning in the river!</li>
                     </ul>
                 )}
             </div>
