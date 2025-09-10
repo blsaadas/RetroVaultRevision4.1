@@ -23,6 +23,7 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [board, setBoard] = useState<Cell[][]>([]);
   const [firstClick, setFirstClick] = useState(true);
+  const startTimeRef = useRef<number | null>(null);
 
   const initBoard = useCallback(() => {
     const newBoard = Array.from({ length: BOARD_SIZE }, () =>
@@ -42,9 +43,9 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
     initBoard();
   }, [initBoard]);
 
-  const placeMines = (clickedX: number, clickedY: number) => {
+  const placeMines = (clickedX: number, clickedY: number, initialBoard: Cell[][]): Cell[][] => {
     let minesPlaced = 0;
-    const newBoard = JSON.parse(JSON.stringify(board));
+    const newBoard = JSON.parse(JSON.stringify(initialBoard));
 
     while (minesPlaced < NUM_MINES) {
       const x = Math.floor(Math.random() * BOARD_SIZE);
@@ -77,32 +78,31 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
     }
     return newBoard;
   };
-
-  const openCell = (x: number, y: number, currentBoard: Cell[][]): Cell[][] => {
-    if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE || currentBoard[y][x].isOpen) {
+  
+  const revealCells = useCallback((x: number, y: number, currentBoard: Cell[][]): Cell[][] => {
+    if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE || currentBoard[y][x].isOpen || currentBoard[y][x].isFlagged) {
       return currentBoard;
     }
 
     let newBoard = JSON.parse(JSON.stringify(currentBoard));
     newBoard[y][x].isOpen = true;
-    newBoard[y][x].isFlagged = false;
 
-    if(newBoard[y][x].isMine){
-        onGameOver(0);
-        return newBoard;
+    if (newBoard[y][x].isMine) {
+      onGameOver(0);
+      return newBoard;
     }
 
     if (newBoard[y][x].neighborMines === 0) {
       for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
           if (i === 0 && j === 0) continue;
-          newBoard = openCell(x + j, y + i, newBoard);
+          newBoard = revealCells(x + j, y + i, newBoard);
         }
       }
     }
     return newBoard;
-  };
-  
+  }, [onGameOver]);
+
   const checkWin = (currentBoard: Cell[][]) => {
       const nonMineCells = BOARD_SIZE * BOARD_SIZE - NUM_MINES;
       const openCells = currentBoard.flat().filter(c => c.isOpen && !c.isMine).length;
@@ -112,8 +112,6 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
           onGameOver(score);
       }
   }
-  
-  const startTimeRef = useRef<number | null>(null);
 
   const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (isGameOver) return;
@@ -126,25 +124,26 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
 
     if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) return;
     
-    let currentBoard = board;
-    if (firstClick && event.button === 0) {
-      startTimeRef.current = Date.now();
-      currentBoard = placeMines(x, y);
-      setFirstClick(false);
-    }
-    
-    if(event.button === 0) { // Left click
-      if (currentBoard[y][x].isFlagged) return;
-      const newBoard = openCell(x, y, currentBoard);
-      setBoard(newBoard);
-      checkWin(newBoard);
-    } else if(event.button === 2) { // Right click
-        const newBoard = JSON.parse(JSON.stringify(currentBoard));
-        if(!newBoard[y][x].isOpen){
-            newBoard[y][x].isFlagged = !newBoard[y][x].isFlagged;
-            setBoard(newBoard);
-        }
-    }
+    setBoard(currentBoard => {
+      let newBoard = JSON.parse(JSON.stringify(currentBoard));
+
+      if (firstClick && event.button === 0) {
+        startTimeRef.current = Date.now();
+        newBoard = placeMines(x, y, newBoard);
+        setFirstClick(false);
+      }
+      
+      if(event.button === 0) { // Left click
+        if (newBoard[y][x].isFlagged) return newBoard;
+        newBoard = revealCells(x, y, newBoard);
+        checkWin(newBoard);
+      } else if(event.button === 2) { // Right click
+          if(!newBoard[y][x].isOpen){
+              newBoard[y][x].isFlagged = !newBoard[y][x].isFlagged;
+          }
+      }
+      return newBoard;
+    });
   };
 
   const handleContextMenu = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -204,14 +203,16 @@ export default function MinefieldGame({ setScore, onGameOver, isGameOver }: Mine
   
   // Show all mines on game over
   useEffect(() => {
-      if(isGameOver) {
-        const newBoard = JSON.parse(JSON.stringify(board));
-        newBoard.flat().forEach((cell: Cell) => {
-            if(cell.isMine) cell.isOpen = true;
+      if(isGameOver && board.length > 0) {
+        setBoard(currentBoard => {
+            const newBoard = JSON.parse(JSON.stringify(currentBoard));
+            newBoard.flat().forEach((cell: Cell) => {
+                if(cell.isMine) cell.isOpen = true;
+            });
+            return newBoard;
         });
-        setBoard(newBoard);
       }
-  }, [isGameOver, board]);
+  }, [isGameOver, board.length]);
 
   return (
     <canvas
