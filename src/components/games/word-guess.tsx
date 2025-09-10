@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -36,13 +37,13 @@ export default function WordGuessGame({ setScore, onGameOver, isGameOver }: Word
   }, [initGame]);
 
   const checkWinOrLose = useCallback(() => {
-      if(isGameOver) return;
+      if(isGameOver || !word) return;
       
       const wordSet = new Set(word.split(''));
       const guessedSet = new Set(guessedLetters);
       const correctGuesses = [...wordSet].filter(letter => guessedSet.has(letter));
 
-      if (correctGuesses.length === wordSet.size && word) {
+      if (correctGuesses.length === wordSet.size) {
         const score = (MAX_GUESSES - wrongGuesses) * 10;
         setScore(() => score);
         onGameOver(score);
@@ -105,22 +106,23 @@ export default function WordGuessGame({ setScore, onGameOver, isGameOver }: Word
     ctx.fillStyle = 'hsl(var(--foreground))';
     ctx.font = '48px "Space Grotesk"';
     ctx.textAlign = 'center';
-    let displayWord = word.split('').map(letter => (guessedLetters.includes(letter) ? letter : '_')).join(' ');
-    ctx.fillText(displayWord, CANVAS_WIDTH / 2, 350);
+    let displayWord = word.split('').map(letter => (guessedLetters.includes(letter) || isGameOver ? letter : '_')).join(' ');
+    ctx.fillText(displayWord, CANVAS_WIDTH / 2 + 100, 300);
     
     // Draw guessed letters
     ctx.font = '24px "Inter"';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Guessed: ${guessedLetters.join(', ')}`, 350, 100);
+    ctx.textAlign = 'center';
+    ctx.fillText(`Guessed: ${guessedLetters.join(', ')}`,  CANVAS_WIDTH / 2 + 100, 350);
     
     checkWinOrLose();
 
-  }, [word, guessedLetters, wrongGuesses, checkWinOrLose]);
+  }, [word, guessedLetters, wrongGuesses, checkWinOrLose, isGameOver]);
 
   useEffect(() => {
     draw();
-  }, [draw]);
+  }, [draw, guessedLetters]);
 
 
   return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
+
