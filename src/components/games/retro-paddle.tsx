@@ -27,8 +27,8 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         player2Y: CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2,
         player1Score: 0,
         player2Score: 0,
-        keys: {} as { [key: string]: boolean },
     });
+    const keysPressed = useRef<{ [key: string]: boolean }>({});
     const animationFrameId = useRef<number>(0);
 
     const ballReset = () => {
@@ -49,11 +49,11 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         const ctx = canvasRef.current?.getContext('2d');
         if (!ctx) return;
 
-        // Player 1 movement
-        if ((game.keys['w'] || game.keys['arrowup']) && game.player1Y > 0) {
+        // Player 1 movement based on currently pressed keys
+        if ((keysPressed.current['w'] || keysPressed.current['arrowup']) && game.player1Y > 0) {
             game.player1Y -= 8;
         }
-        if ((game.keys['s'] || game.keys['arrowdown']) && game.player1Y < CANVAS_HEIGHT - PADDLE_HEIGHT) {
+        if ((keysPressed.current['s'] || keysPressed.current['arrowdown']) && game.player1Y < CANVAS_HEIGHT - PADDLE_HEIGHT) {
             game.player1Y += 8;
         }
         
@@ -64,6 +64,9 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         } else if (player2YCenter > game.ballY + 35) {
             game.player2Y -= 6;
         }
+        if (game.player2Y < 0) game.player2Y = 0;
+        if (game.player2Y > CANVAS_HEIGHT - PADDLE_HEIGHT) game.player2Y = CANVAS_HEIGHT - PADDLE_HEIGHT;
+
 
         // Ball movement
         game.ballX += game.ballSpeedX;
@@ -75,15 +78,23 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         }
 
         // Ball collision with paddles
-        if (
-            (game.ballX < PADDLE_WIDTH + BALL_RADIUS && game.ballY > game.player1Y && game.ballY < game.player1Y + PADDLE_HEIGHT) ||
-            (game.ballX > CANVAS_WIDTH - PADDLE_WIDTH - BALL_RADIUS && game.ballY > game.player2Y && game.ballY < game.player2Y + PADDLE_HEIGHT)
-        ) {
-            game.ballSpeedX = -game.ballSpeedX;
-            const deltaY = game.ballY - ((game.ballSpeedX > 0 ? game.player1Y : game.player2Y) + PADDLE_HEIGHT/2);
-            game.ballSpeedY = deltaY * 0.35;
+        const paddle1Top = game.player1Y;
+        const paddle1Bottom = game.player1Y + PADDLE_HEIGHT;
+        const paddle2Top = game.player2Y;
+        const paddle2Bottom = game.player2Y + PADDLE_HEIGHT;
+
+        if (game.ballSpeedX < 0 && game.ballX - BALL_RADIUS < PADDLE_WIDTH && game.ballY > paddle1Top && game.ballY < paddle1Bottom) {
+             game.ballSpeedX = -game.ballSpeedX;
+             const deltaY = game.ballY - (paddle1Top + PADDLE_HEIGHT/2);
+             game.ballSpeedY = deltaY * 0.35;
         }
-        
+
+        if (game.ballSpeedX > 0 && game.ballX + BALL_RADIUS > CANVAS_WIDTH - PADDLE_WIDTH && game.ballY > paddle2Top && game.ballY < paddle2Bottom) {
+             game.ballSpeedX = -game.ballSpeedX;
+             const deltaY = game.ballY - (paddle2Top + PADDLE_HEIGHT/2);
+             game.ballSpeedY = deltaY * 0.35;
+        }
+
         // Scoring
         if (game.ballX < 0) {
             game.player2Score++;
@@ -95,7 +106,7 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         }
 
         // Check for win condition
-        if (game.player1Score >= WINNING_SCORE || game.player2Score >= WINNING_SCORE) {
+        if (!isGameOver && (game.player1Score >= WINNING_SCORE || game.player2Score >= WINNING_SCORE)) {
             onGameOver(game.player1Score);
         }
 
@@ -130,8 +141,8 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
     }, [isGameOver, setScore, onGameOver]);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = true; };
-        const handleKeyUp = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = false; };
+        const handleKeyDown = (e: KeyboardEvent) => { keysPressed.current[e.key.toLowerCase()] = true; };
+        const handleKeyUp = (e: KeyboardEvent) => { keysPressed.current[e.key.toLowerCase()] = false; };
         
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
@@ -142,6 +153,7 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
             cancelAnimationFrame(animationFrameId.current);
+            keysPressed.current = {};
         };
     }, [gameLoop]);
 
