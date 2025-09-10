@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "snake",
+      "description": "A classic snake game.",
+      "imageUrl": "https://picsum.photos/seed/snake/600/400",
+      "imageHint": "snake game"
+    },
+    {
+      "id": "tetris",
+      "description": "A classic block-stacking puzzle game.",
+      "imageUrl": "https://picsum.photos/seed/tetris/600/400",
+      "imageHint": "tetris blocks"
+    },
+    {
+      "id": "breakout",
+      "description": "A classic paddle and ball game.",
+      "imageUrl": "https://picsum.photos/seed/breakout/600/400",
+      "imageHint": "arcade game"
+    }
+  ]
 }
