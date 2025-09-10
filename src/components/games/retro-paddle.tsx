@@ -36,12 +36,16 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         const handleKeyUp = (e: KeyboardEvent) => { gameState.current.keys[e.key.toLowerCase()] = false; };
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
+        
+        const game = gameState.current;
+        game.animationFrameId = requestAnimationFrame(gameLoop);
+
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            cancelAnimationFrame(gameState.current.animationFrameId);
+            cancelAnimationFrame(game.animationFrameId);
         };
-    }, []);
+    }, [isGameOver]);
 
     const ballReset = () => {
         const game = gameState.current;
@@ -93,7 +97,7 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
             (game.ballX > CANVAS_WIDTH - PADDLE_WIDTH - BALL_RADIUS && game.ballY > game.player2Y && game.ballY < game.player2Y + PADDLE_HEIGHT)
         ) {
             game.ballSpeedX = -game.ballSpeedX;
-            const deltaY = game.ballY - (game.ballSpeedX > 0 ? game.player1Y : game.player2Y) + PADDLE_HEIGHT/2;
+            const deltaY = game.ballY - ((game.ballSpeedX > 0 ? game.player1Y : game.player2Y) + PADDLE_HEIGHT/2);
             game.ballSpeedY = deltaY * 0.35;
         }
         
@@ -141,11 +145,6 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
 
         game.animationFrameId = requestAnimationFrame(gameLoop);
     };
-
-    useEffect(() => {
-        gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
-        return () => cancelAnimationFrame(gameState.current.animationFrameId);
-    }, [isGameOver]);
 
     return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
