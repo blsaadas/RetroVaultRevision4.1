@@ -19,7 +19,7 @@ const map = [
     "######.##### ## #####.######",
     "     #.##### ## #####.#     ",
     "     #.##          ##.#     ",
-    "     #.## ###--### ##.#     ",
+    "     #.## #      # ##.#     ",
     "######.## #      # ##.######",
     "      .   #      #   .      ",
     "######.## #      # ##.######",
@@ -103,7 +103,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
     const isWall = (x: number, y: number, isGhost: boolean = false) => {
         const char = map[Math.floor(y)]?.[Math.floor(x)];
-        if (isGhost && char === '-') return false;
+        if (isGhost && map[Math.floor(y)]?.[Math.floor(x)] === ' ') return false; // Ghosts can leave the box
         return char === '#' || char === '-';
     };
 
@@ -139,7 +139,7 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
         ctx.scale(scale, scale);
 
         // Update player position only every few frames
-        if (game.frameCount % 4 === 0) {
+        if (game.frameCount % 5 === 0) {
             const { player } = game;
             
             const nextGridX = Math.round(player.x + player.nextDx);
@@ -163,24 +163,36 @@ export default function MazeMuncherGame({ setScore, onGameOver, isGameOver }: Ma
 
 
         // Update ghost positions
-        if (game.frameCount % 4 === 0) {
+        if (game.frameCount % 5 === 0) {
             game.ghosts.forEach(ghost => {
-                if (ghost.isInBox && map[ghost.y][ghost.x] !== '-') {
-                     ghost.isInBox = false;
-                }
-                 const possibleMoves = [];
-                 if (!isWall(ghost.x, ghost.y - 1, ghost.isInBox) && ghost.dy !== 1) possibleMoves.push({dx:0, dy:-1});
-                 if (!isWall(ghost.x, ghost.y + 1, ghost.isInBox) && ghost.dy !== -1) possibleMoves.push({dx:0, dy:1});
-                 if (!isWall(ghost.x - 1, ghost.y, ghost.isInBox) && ghost.dx !== 1) possibleMoves.push({dx:-1, dy:0});
-                 if (!isWall(ghost.x + 1, ghost.y, ghost.isInBox) && ghost.dx !== -1) possibleMoves.push({dx:1, dy:0});
-                
-                 if (possibleMoves.length > 0) {
-                    const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-                    ghost.dx = move.dx;
-                    ghost.dy = move.dy;
+                 if (ghost.isInBox && ghost.y > 12) {
+                     ghost.dy = -1; // Move up to exit box
+                     ghost.dx = 0;
+                 } else {
+                    ghost.isInBox = false;
+                    const possibleMoves = [];
+                    if (!isWall(ghost.x, ghost.y - 1, true) && ghost.dy !== 1) possibleMoves.push({dx:0, dy:-1});
+                    if (!isWall(ghost.x, ghost.y + 1, true) && ghost.dy !== -1) possibleMoves.push({dx:0, dy:1});
+                    if (!isWall(ghost.x - 1, ghost.y, true) && ghost.dx !== 1) possibleMoves.push({dx:-1, dy:0});
+                    if (!isWall(ghost.x + 1, ghost.y, true) && ghost.dx !== -1) possibleMoves.push({dx:1, dy:0});
+                    
+                    if (possibleMoves.length > 1) { // Don't turn back if not at intersection
+                        const backMoveIndex = possibleMoves.findIndex(m => m.dx === -ghost.dx && m.dy === -ghost.dy);
+                        if(backMoveIndex > -1) possibleMoves.splice(backMoveIndex, 1);
+                    }
+
+                    if (possibleMoves.length > 0) {
+                        const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                        ghost.dx = move.dx;
+                        ghost.dy = move.dy;
+                    }
                 }
                 ghost.x += ghost.dx;
                 ghost.y += ghost.dy;
+
+                // Handle wrapping for ghosts
+                if (ghost.x < 0) ghost.x = map[0].length - 1;
+                if (ghost.x >= map[0].length) ghost.x = 0;
             });
         }
 
