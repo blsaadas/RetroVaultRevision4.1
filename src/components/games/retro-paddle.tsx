@@ -28,27 +28,30 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         player1Score: 0,
         player2Score: 0,
     });
-    const keysPressed = useRef<{ [key: string]: boolean }>({}).current;
-    const animationFrameId = useRef<number>();
+    const keysPressed = useRef<{ [key: string]: boolean }>({});
 
-    const ballReset = () => {
+    const ballReset = useCallback(() => {
         const game = gameState.current;
         game.ballX = CANVAS_WIDTH / 2;
         game.ballY = CANVAS_HEIGHT / 2;
         game.ballSpeedX = -game.ballSpeedX;
         game.ballSpeedY = 5 * (Math.random() > 0.5 ? 1 : -1);
-    };
+    }, []);
     
     const gameLoop = useCallback(() => {
+        if (isGameOver) {
+            return;
+        }
+
         const game = gameState.current;
         const ctx = canvasRef.current?.getContext('2d');
-        if (!ctx || isGameOver) return;
+        if (!ctx) return;
 
         // Player 1 movement
-        if ((keysPressed['w'] || keysPressed['arrowup']) && game.player1Y > 0) {
+        if ((keysPressed.current['w'] || keysPressed.current['arrowup']) && game.player1Y > 0) {
             game.player1Y -= 8;
         }
-        if ((keysPressed['s'] || keysPressed['arrowdown']) && game.player1Y < CANVAS_HEIGHT - PADDLE_HEIGHT) {
+        if ((keysPressed.current['s'] || keysPressed.current['arrowdown']) && game.player1Y < CANVAS_HEIGHT - PADDLE_HEIGHT) {
             game.player1Y += 8;
         }
         
@@ -59,7 +62,6 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         } else if (player2YCenter > game.ballY + 35) {
             game.player2Y = Math.max(game.player2Y - 6, 0);
         }
-
 
         // Ball movement
         game.ballX += game.ballSpeedX;
@@ -95,7 +97,7 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
             ballReset();
         } else if (game.ballX > CANVAS_WIDTH) {
             game.player1Score++;
-            setScore(() => game.player1Score);
+            setScore(game.player1Score);
             ballReset();
         }
 
@@ -104,7 +106,7 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
             onGameOver(game.player1Score);
         }
 
-        // Drawing
+        // --- DRAWING LOGIC ---
         ctx.fillStyle = '#18181b';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         
@@ -131,26 +133,24 @@ export default function RetroPaddleGame({ setScore, onGameOver, isGameOver }: Re
         ctx.fillText(String(game.player1Score), CANVAS_WIDTH/2 - 70, 50);
         ctx.fillText(String(game.player2Score), CANVAS_WIDTH/2 + 50, 50);
 
-        animationFrameId.current = requestAnimationFrame(gameLoop);
-    }, [isGameOver, setScore, onGameOver, keysPressed]);
+        requestAnimationFrame(gameLoop);
+    }, [isGameOver, setScore, onGameOver, ballReset]);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => { keysPressed[e.key.toLowerCase()] = true; };
-        const handleKeyUp = (e: KeyboardEvent) => { keysPressed[e.key.toLowerCase()] = false; };
+        const handleKeyDown = (e: KeyboardEvent) => { keysPressed.current[e.key.toLowerCase()] = true; };
+        const handleKeyUp = (e: KeyboardEvent) => { keysPressed.current[e.key.toLowerCase()] = false; };
         
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         
-        animationFrameId.current = requestAnimationFrame(gameLoop);
+        const frameId = requestAnimationFrame(gameLoop);
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            if(animationFrameId.current) {
-                cancelAnimationFrame(animationFrameId.current);
-            }
+            cancelAnimationFrame(frameId);
         };
-    }, [gameLoop, keysPressed]);
+    }, [gameLoop]);
 
 
     return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
