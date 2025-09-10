@@ -50,14 +50,6 @@ export const games: Game[] = [
     imageHint: "spaceship asteroids"
   },
   {
-    slug: "retro-paddle",
-    title: "Retro Paddle",
-    description: "The original paddle game. Compete against the computer in a test of reflexes.",
-    category: "Arcade",
-    image: "https://picsum.photos/seed/pong/600/400",
-    imageHint: "ping pong"
-  },
-  {
     slug: "frog-hopper",
     title: "Frog Hopper",
     description: "Help a frog cross a busy road and a dangerous river to reach its home.",

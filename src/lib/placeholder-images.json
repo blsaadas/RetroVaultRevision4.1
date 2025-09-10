@@ -37,12 +37,6 @@
       "imageHint": "spaceship asteroids"
     },
     {
-      "id": "pong",
-      "description": "A classic table tennis-style arcade game.",
-      "imageUrl": "https://picsum.photos/seed/pong/600/400",
-      "imageHint": "ping pong"
-    },
-    {
       "id": "frogger",
       "description": "A classic arcade game where you help a frog cross the road.",
       "imageUrl": "https://picsum.photos/seed/frogger/600/400",

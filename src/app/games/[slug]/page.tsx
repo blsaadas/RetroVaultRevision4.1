@@ -8,7 +8,6 @@ import GalaxyPatrolGame from '@/components/games/galaxy-patrol';
 import Game2048 from '@/components/games/2048';
 import MazeMuncherGame from '@/components/games/maze-muncher';
 import AsteroidFieldGame from '@/components/games/asteroid-field';
-import RetroPaddleGame from '@/components/games/retro-paddle';
 import FrogHopperGame from '@/components/games/frog-hopper';
 import MinefieldGame from '@/components/games/minefield';
 import WordGuessGame from '@/components/games/word-guess';
@@ -45,8 +44,6 @@ function getGameComponent(slug: string) {
         return MazeMuncherGame;
     case 'asteroid-field':
         return AsteroidFieldGame;
-    case 'retro-paddle':
-        return RetroPaddleGame;
     case 'frog-hopper':
         return FrogHopperGame;
     case 'minefield':
@@ -157,13 +154,6 @@ export default function GamePage({ params }: GamePageProps) {
                         <li><span className="font-semibold text-foreground">Up Arrow</span> or <span className="font-semibold text-foreground">W</span> to thrust forward.</li>
                         <li>Press <span className="font-semibold text-foreground">Spacebar</span> to shoot.</li>
                         <li>Shoot all asteroids to win. Avoid crashing into them!</li>
-                    </ul>
-                )}
-                {game.slug === 'retro-paddle' && (
-                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                        <li><span className="font-semibold text-foreground">Up/Down Arrows</span> or <span className="font-semibold text-foreground">W/S</span> to move your paddle.</li>
-                        <li>First player to 10 points wins.</li>
-                        <li>Don't let the ball get past your paddle!</li>
                     </ul>
                 )}
                 {game.slug === 'frog-hopper' && (
