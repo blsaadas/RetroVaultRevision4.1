@@ -21,7 +21,6 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
     const [currentPlayer, setCurrentPlayer] = useState(1);
     const [winner, setWinner] = useState<number | null>(null);
     const [hoverCol, setHoverCol] = useState<number | null>(null);
-    const isPlayerTurn = useRef(true);
 
     const dropPiece = (col: number, player: number, currentBoard: number[][]): number[][] | null => {
         for (let row = ROWS - 1; row >= 0; row--) {
@@ -34,7 +33,7 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         return null;
     };
     
-    const checkWin = (currentBoard: number[][]): number | null => {
+    const checkWin = useCallback((currentBoard: number[][]): number | null => {
         // Horizontal
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c <= COLS - 4; c++) {
@@ -73,10 +72,9 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         }
 
         return null;
-    }
+    }, []);
 
     const aiMove = useCallback((currentBoard: number[][]) => {
-        isPlayerTurn.current = false;
         const availableCols: number[] = [];
         for (let c = 0; c < COLS; c++) {
             if (currentBoard[0][c] === 0) {
@@ -85,24 +83,32 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         }
         if(availableCols.length === 0) return;
 
+        // Simple AI: just picks a random valid column
         const col = availableCols[Math.floor(Math.random() * availableCols.length)];
         const newBoard = dropPiece(col, 2, currentBoard);
 
         if(newBoard){
-            setBoard(newBoard);
             const gameWinner = checkWin(newBoard);
-             if (gameWinner) {
+            if (gameWinner) {
                 setWinner(gameWinner);
-                onGameOver(gameWinner === 1 ? 1 : 0);
-            } else {
-                isPlayerTurn.current = true;
-                setCurrentPlayer(1);
+                const score = gameWinner === 1 ? 1 : 0;
+                setScore(() => score);
+                onGameOver(score);
             }
+            setBoard(newBoard);
+            setCurrentPlayer(1);
         }
-    }, [onGameOver]);
+    }, [checkWin, onGameOver, setScore]);
+
+    useEffect(() => {
+        if (currentPlayer === 2 && !winner && !isGameOver) {
+            setTimeout(() => aiMove(board), 500);
+        }
+    }, [currentPlayer, winner, isGameOver, board, aiMove]);
+
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (isGameOver || winner || !isPlayerTurn.current) return;
+        if (isGameOver || winner || currentPlayer !== 1) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
         
@@ -117,26 +123,22 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
         setHoverCol(null);
     };
 
-    const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (isGameOver || winner || !isPlayerTurn.current) return;
+    const handleClick = () => {
+        if (isGameOver || winner || currentPlayer !== 1 || hoverCol === null) return;
         
-        if (hoverCol !== null) {
-            const newBoard = dropPiece(hoverCol, 1, board);
-            if (newBoard) {
-                setBoard(newBoard);
-                setHoverCol(null); // Stop showing hover after piece is dropped
-                const gameWinner = checkWin(newBoard);
-                if (gameWinner) {
-                    setWinner(gameWinner);
-                    const score = gameWinner === 1 ? 1 : 0;
-                    setScore(() => score);
-                    onGameOver(score);
-                } else {
-                    isPlayerTurn.current = false;
-                    setCurrentPlayer(2);
-                    setTimeout(() => aiMove(newBoard), 500);
-                }
+        const newBoard = dropPiece(hoverCol, 1, board);
+        if (newBoard) {
+            setHoverCol(null);
+            const gameWinner = checkWin(newBoard);
+             if (gameWinner) {
+                setWinner(gameWinner);
+                const score = gameWinner === 1 ? 1 : 0;
+                setScore(() => score);
+                onGameOver(score);
+            } else {
+                setCurrentPlayer(2);
             }
+            setBoard(newBoard);
         }
     };
     
@@ -146,14 +148,11 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
 
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        // Draw hover indicator
-        if (hoverCol !== null && isPlayerTurn.current && !winner) {
+        // Draw hover indicator and piece
+        if (hoverCol !== null && currentPlayer === 1 && !winner) {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.fillRect(hoverCol * CELL_SIZE, CELL_SIZE, CELL_SIZE, CANVAS_HEIGHT - CELL_SIZE);
-        }
-        
-        // Draw hover piece
-        if (hoverCol !== null && isPlayerTurn.current && !winner) {
+            
             ctx.fillStyle = '#facc15';
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
@@ -162,19 +161,22 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
             ctx.globalAlpha = 1;
         }
 
-        // Draw board
+        // Draw board grid and empty slots
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 ctx.fillStyle = '#3b82f6';
                 ctx.fillRect(c * CELL_SIZE, (r + 1) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                ctx.fillStyle = '#18181b';
-                ctx.beginPath();
-                ctx.arc(c * CELL_SIZE + CELL_SIZE / 2, (r + 1) * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2 - 5, 0, Math.PI * 2);
-                ctx.fill();
+                
+                ctx.fillStyle = '#18181b'; // Background for empty circle
+                if (board[r][c] === 0) {
+                    ctx.beginPath();
+                    ctx.arc(c * CELL_SIZE + CELL_SIZE / 2, (r + 1) * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2 - 5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
         
-        // Draw pieces
+        // Draw placed pieces
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 if (board[r][c] !== 0) {
@@ -185,11 +187,11 @@ export default function FourInARowGame({ setScore, onGameOver, isGameOver }: Fou
                 }
             }
         }
-    }, [board, hoverCol, winner]);
+    }, [board, hoverCol, winner, currentPlayer]);
     
     useEffect(() => {
         draw();
-    }, [draw]);
+    }, [board, draw]);
 
     return (
         <canvas
