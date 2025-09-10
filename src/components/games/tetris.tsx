@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -230,7 +231,7 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
       resetPlayer();
       setDropTime(1000);
     }
-  }, [player.collided, board, player.pos.x, player.pos.y, player.tetromino, resetPlayer, setScore, currentScore]);
+  }, [player.collided, resetPlayer, setScore, board, currentScore, player.pos.x, player.pos.y, player.tetromino]);
   
 
   useEffect(() => {
@@ -307,3 +308,5 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
 
   return <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="w-full h-full object-contain" />;
 }
+
+    
