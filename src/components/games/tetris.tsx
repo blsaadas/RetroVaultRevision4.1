@@ -94,7 +94,7 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
     tetromino: randomTetromino(),
     collided: false,
   });
-  const [dropTime, setDropTime] = useState(1000);
+  const [dropTime, setDropTime] = useState<number | null>(1000);
   const [currentScore, setCurrentScore] = useState(0);
 
   const checkCollision = (p: typeof player, b: typeof board, { x: moveX, y: moveY }: { x: number; y: number }): boolean => {
@@ -235,7 +235,7 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
 
   useEffect(() => {
     if (isGameOver) {
-      clearInterval(gameLoopRef.current!);
+      if (gameLoopRef.current) clearInterval(gameLoopRef.current);
       return;
     }
 
@@ -265,9 +265,9 @@ export default function TetrisGame({ setScore, onGameOver, isGameOver }: TetrisG
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      clearInterval(gameLoopRef.current!);
+      if (gameLoopRef.current) clearInterval(gameLoopRef.current);
     };
-  }, [board, drop, dropTime, isGameOver, playerRotate]);
+  }, [board, drop, dropTime, isGameOver]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
