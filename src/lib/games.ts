@@ -95,7 +95,7 @@ export const games: Game[] = [
     title: "Cube Runner",
     description: "Navigate a high-speed field of cubes. How long can you survive?",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-1/600/400",
+    image: "https://picsum.photos/seed/runner/600/400",
     imageHint: "3d cubes"
   },
   {
@@ -103,7 +103,7 @@ export const games: Game[] = [
     title: "Flappy Jetpack",
     description: "Tap to fly your jetpack through a series of challenging pipes.",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-2/600/400",
+    image: "https://picsum.photos/seed/jetpack/600/400",
     imageHint: "abstract pipes"
   },
   {
@@ -111,7 +111,7 @@ export const games: Game[] = [
     title: "Stack Tower",
     description: "Time your taps to stack blocks as high as you can. Precision is key!",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-3/600/400",
+    image: "https://picsum.photos/seed/stack/600/400",
     imageHint: "block tower"
   },
   {
@@ -119,7 +119,7 @@ export const games: Game[] = [
     title: "Geo-Dash",
     description: "A fast-paced rhythm-based platformer. Jump over obstacles in sync with the beat.",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-4/600/400",
+    image: "https://picsum.photos/seed/dash/600/400",
     imageHint: "geometric shapes"
   },
   {
@@ -127,7 +127,7 @@ export const games: Game[] = [
     title: "Sky Dodge",
     description: "Control your character and dodge the objects falling from the sky.",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-5/600/400",
+    image: "https://picsum.photos/seed/sky/600/400",
     imageHint: "falling objects"
   },
   {
@@ -135,7 +135,7 @@ export const games: Game[] = [
     title: "Clicker Mania",
     description: "An incremental game where every click brings you closer to victory. Can you reach a billion?",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-6/600/400",
+    image: "https://picsum.photos/seed/clicker/600/400",
     imageHint: "mouse cursor"
   },
   {
@@ -143,7 +143,7 @@ export const games: Game[] = [
     title: "Gem Match",
     description: "Swap colorful gems to make matches of three or more. A dazzling puzzle challenge.",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-7/600/400",
+    image: "https://picsum.photos/seed/gem/600/400",
     imageHint: "colorful gems"
   },
   {
@@ -151,7 +151,7 @@ export const games: Game[] = [
     title: "Bubble Pop",
     description: "Shoot and match colored bubbles to clear the board in this addictive puzzle game.",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-8/600/400",
+    image: "https://picsum.photos/seed/bubble/600/400",
     imageHint: "colored bubbles"
   },
   {
@@ -159,7 +159,7 @@ export const games: Game[] = [
     title: "Endless Road",
     description: "Steer your car down an endless road, avoiding traffic and collecting coins.",
     category: "Modern",
-    image: "https://picsum.photos/seed/modern-9/600/400",
+    image: "https://picsum.photos/seed/road/600/400",
     imageHint: "car road"
   }
 ];
