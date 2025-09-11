@@ -141,7 +141,7 @@ export default function CubeRunnerGame({ setScore, onGameOver, isGameOver }: Cub
     }, [isGameOver, onGameOver, setScore]);
 
     useEffect(() => {
-        game.animationFrameId = requestAnimationFrame(gameLoop);
+        gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
         return () => cancelAnimationFrame(gameState.current.animationFrameId);
     }, [gameLoop]);
 
