@@ -129,7 +129,7 @@ export default function GeoDashGame({ setScore, onGameOver, isGameOver }: GeoDas
   }, [isGameOver, onGameOver, setScore]);
 
   useEffect(() => {
-    game.animationFrameId = requestAnimationFrame(gameLoop);
+    gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(gameState.current.animationFrameId);
   }, [gameLoop]);
 
