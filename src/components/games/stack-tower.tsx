@@ -112,7 +112,7 @@ export default function StackTowerGame({ setScore, onGameOver, isGameOver }: Sta
   }, [isGameOver]);
 
   useEffect(() => {
-    game.animationFrameId = requestAnimationFrame(gameLoop);
+    gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(gameState.current.animationFrameId);
   }, [gameLoop]);
 

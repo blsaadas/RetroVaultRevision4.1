@@ -137,7 +137,7 @@ export default function DoodleAscendGame({ setScore, onGameOver, isGameOver }: D
   }, [isGameOver, onGameOver, setScore]);
 
   useEffect(() => {
-    game.animationFrameId = requestAnimationFrame(gameLoop);
+    gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(gameState.current.animationFrameId);
   }, [gameLoop]);
 

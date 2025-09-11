@@ -111,7 +111,7 @@ export default function SkyDodgeGame({ setScore, onGameOver, isGameOver }: SkyDo
   }, [isGameOver, onGameOver, setScore]);
 
   useEffect(() => {
-    game.animationFrameId = requestAnimationFrame(gameLoop);
+    gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(gameState.current.animationFrameId);
   }, [gameLoop]);
 

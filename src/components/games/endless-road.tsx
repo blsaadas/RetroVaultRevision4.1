@@ -144,7 +144,7 @@ export default function EndlessRoadGame({ setScore, onGameOver, isGameOver }: En
   }, [isGameOver, onGameOver, setScore]);
   
   useEffect(() => {
-    game.animationFrameId = requestAnimationFrame(gameLoop);
+    gameState.current.animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(gameState.current.animationFrameId);
   }, [gameLoop]);
 
