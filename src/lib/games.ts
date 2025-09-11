@@ -89,6 +89,86 @@ export const games: Game[] = [
     category: "Puzzle",
     image: "https://picsum.photos/seed/connectfour/600/400",
     imageHint: "colored discs"
+  },
+  {
+    slug: "cube-runner",
+    title: "Cube Runner",
+    description: "Navigate a high-speed field of cubes. How long can you survive?",
+    category: "Modern",
+    image: "https://picsum.photos/seed/cuberunner/600/400",
+    imageHint: "3d cubes"
+  },
+  {
+    slug: "flappy-jetpack",
+    title: "Flappy Jetpack",
+    description: "Tap to fly your jetpack through a series of challenging pipes.",
+    category: "Modern",
+    image: "https://picsum.photos/seed/flappy/600/400",
+    imageHint: "jetpack character"
+  },
+  {
+    slug: "stack-tower",
+    title: "Stack Tower",
+    description: "Time your taps to stack blocks as high as you can. Precision is key!",
+    category: "Modern",
+    image: "https://picsum.photos/seed/stacker/600/400",
+    imageHint: "block tower"
+  },
+  {
+    slug: "doodle-ascend",
+    title: "Doodle Ascend",
+    description: "Jump your way up an endless series of platforms. Don't fall!",
+    category: "Modern",
+    image: "https://picsum.photos/seed/doodle/600/400",
+    imageHint: "character jumping"
+  },
+  {
+    slug: "geo-dash",
+    title: "Geo-Dash",
+    description: "A fast-paced rhythm-based platformer. Jump over obstacles in sync with the beat.",
+    category: "Modern",
+    image: "https://picsum.photos/seed/geodash/600/400",
+    imageHint: "geometric shapes"
+  },
+  {
+    slug: "sky-dodge",
+    title: "Sky Dodge",
+    description: "Control your character and dodge the objects falling from the sky.",
+    category: "Modern",
+    image: "https://picsum.photos/seed/skydodge/600/400",
+    imageHint: "falling objects"
+  },
+  {
+    slug: "clicker-mania",
+    title: "Clicker Mania",
+    description: "An incremental game where every click brings you closer to victory. Can you reach a billion?",
+    category: "Modern",
+    image: "https://picsum.photos/seed/clicker/600/400",
+    imageHint: "mouse cursor"
+  },
+  {
+    slug: "gem-match",
+    title: "Gem Match",
+    description: "Swap colorful gems to make matches of three or more. A dazzling puzzle challenge.",
+    category: "Modern",
+    image: "https://picsum.photos/seed/gemmatch/600/400",
+    imageHint: "colorful gems"
+  },
+  {
+    slug: "bubble-pop",
+    title: "Bubble Pop",
+    description: "Shoot and match colored bubbles to clear the board in this addictive puzzle game.",
+    category: "Modern",
+    image: "https://picsum.photos/seed/bubblepop/600/400",
+    imageHint: "colored bubbles"
+  },
+  {
+    slug: "endless-road",
+    title: "Endless Road",
+    description: "Steer your car down an endless road, avoiding traffic and collecting coins.",
+    category: "Modern",
+    image: "https://picsum.photos/seed/road/600/400",
+    imageHint: "car road"
   }
 ];
 

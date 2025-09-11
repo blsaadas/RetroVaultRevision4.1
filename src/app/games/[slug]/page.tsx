@@ -1,3 +1,4 @@
+
 import { notFound } from 'next/navigation';
 import { games, allGameSlugs } from '@/lib/games';
 import { GameContainer } from '@/components/game-container';
@@ -15,6 +16,17 @@ import type { Game } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import FourInARowGame from '@/components/games/four-in-a-row';
+import CubeRunnerGame from '@/components/games/cube-runner';
+import FlappyJetpackGame from '@/components/games/flappy-jetpack';
+import StackTowerGame from '@/components/games/stack-tower';
+import DoodleAscendGame from '@/components/games/doodle-ascend';
+import GeoDashGame from '@/components/games/geo-dash';
+import SkyDodgeGame from '@/components/games/sky-dodge';
+import ClickerManiaGame from '@/components/games/clicker-mania';
+import GemMatchGame from '@/components/games/gem-match';
+import BubblePopGame from '@/components/games/bubble-pop';
+import EndlessRoadGame from '@/components/games/endless-road';
+
 
 interface GamePageProps {
   params: {
@@ -51,6 +63,26 @@ function getGameComponent(slug: string) {
         return WordGuessGame;
     case 'four-in-a-row':
         return FourInARowGame;
+    case 'cube-runner':
+        return CubeRunnerGame;
+    case 'flappy-jetpack':
+        return FlappyJetpackGame;
+    case 'stack-tower':
+        return StackTowerGame;
+    case 'doodle-ascend':
+        return DoodleAscendGame;
+    case 'geo-dash':
+        return GeoDashGame;
+    case 'sky-dodge':
+        return SkyDodgeGame;
+    case 'clicker-mania':
+        return ClickerManiaGame;
+    case 'gem-match':
+        return GemMatchGame;
+    case 'bubble-pop':
+        return BubblePopGame;
+    case 'endless-road':
+        return EndlessRoadGame;
     default:
       return null;
   }
@@ -182,6 +214,77 @@ export default function GamePage({ params }: GamePageProps) {
                         <li>Your goal is to get four of your pieces in a row.</li>
                         <li>Rows can be horizontal, vertical, or diagonal.</li>
                         <li>The first to get four in a row wins!</li>
+                    </ul>
+                )}
+                {game.slug === 'cube-runner' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">A/D</span> to move.</li>
+                        <li>Dodge the incoming cubes for as long as you can.</li>
+                        <li>The game gets faster over time!</li>
+                    </ul>
+                )}
+                {game.slug === 'flappy-jetpack' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Press any key, click, or tap to flap your jetpack upwards.</li>
+                        <li>Navigate through the gaps in the pipes.</li>
+                        <li>Don't hit the pipes or the ground!</li>
+                    </ul>
+                )}
+                {game.slug === 'stack-tower' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Press any key, click, or tap to place the moving block.</li>
+                        <li>Try to line it up perfectly with the block below.</li>
+                        <li>Any part of the block that doesn't overlap is cut off.</li>
+                        <li>Stack as high as you can!</li>
+                    </ul>
+                )}
+                {game.slug === 'doodle-ascend' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">A/D</span> to move left and right.</li>
+                        <li>Jump on platforms to go higher.</li>
+                        <li>The screen will move up with you. Don't fall off the bottom!</li>
+                    </ul>
+                )}
+                {game.slug === 'geo-dash' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Press any key, click, or tap to jump.</li>
+                        <li>Jump over the triangular obstacles.</li>
+                        <li>The game speeds up as you go!</li>
+                    </ul>
+                )}
+                {game.slug === 'sky-dodge' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">A/D</span> to move left and right.</li>
+                        <li>Dodge the objects falling from the sky.</li>
+                        <li>Survive as long as you can!</li>
+                    </ul>
+                )}
+                {game.slug === 'clicker-mania' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Click the main button to earn points.</li>
+                        <li>Use points to buy upgrades for more power and automation.</li>
+                        <li>Reach the highest score possible!</li>
+                    </ul>
+                )}
+                {game.slug === 'gem-match' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Click to select a gem, then click an adjacent gem to swap.</li>
+                        <li>Match 3 or more gems of the same color in a row or column.</li>
+                        <li>New gems will fall to fill the gaps.</li>
+                    </ul>
+                )}
+                {game.slug === 'bubble-pop' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Aim with your mouse and click to shoot the bubble.</li>
+                        <li>Match 3 or more bubbles of the same color to pop them.</li>
+                        <li>Clear the board to win! (Note: Popping logic is simplified)</li>
+                    </ul>
+                )}
+                {game.slug === 'endless-road' && (
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        <li>Use <span className="font-semibold text-foreground">Arrow Keys</span> or <span className="font-semibold text-foreground">A/D</span> to steer your car.</li>
+                        <li>Stay on the road and avoid other cars.</li>
+                        <li>Drive as far as you can!</li>
                     </ul>
                 )}
             </div>

@@ -1,4 +1,5 @@
-export type GameCategory = "Action" | "Puzzle" | "Arcade";
+
+export type GameCategory = "Action" | "Puzzle" | "Arcade" | "Modern";
 
 export type Game = {
   slug: string;
