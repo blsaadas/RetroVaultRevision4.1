@@ -19,7 +19,6 @@ import FourInARowGame from '@/components/games/four-in-a-row';
 import CubeRunnerGame from '@/components/games/cube-runner';
 import FlappyJetpackGame from '@/components/games/flappy-jetpack';
 import StackTowerGame from '@/components/games/stack-tower';
-import DoodleAscendGame from '@/components/games/doodle-ascend';
 import GeoDashGame from '@/components/games/geo-dash';
 import SkyDodgeGame from '@/components/games/sky-dodge';
 import ClickerManiaGame from '@/components/games/clicker-mania';
@@ -69,8 +68,6 @@ function getGameComponent(slug: string) {
         return FlappyJetpackGame;
     case 'stack-tower':
         return StackTowerGame;
-    case 'doodle-ascend':
-        return DoodleAscendGame;
     case 'geo-dash':
         return GeoDashGame;
     case 'sky-dodge':
